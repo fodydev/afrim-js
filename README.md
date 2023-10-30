@@ -5,7 +5,7 @@
   <strong>A binding of the <a href="https://github.com/pythonbrad/afrim">afrim ime engine</a> for the web.</strong>
 
   <p>
-    <a href="https://github.com/pythonbrad/afrim-js/actions/workflows/ci.yml"><img alt="Build Status" src="https://img.shields.io/github/actions/workflow/status/pythonbrad/afrim-js/ci.yml?branch=v1.x&label=CI&logo=github&style=flat-square"/></a>
+    <a href="https://github.com/pythonbrad/afrim-js/actions/workflows/ci.yml"><img alt="Build Status" src="https://github.com/pythonbrad/afrim-js/actions/workflows/ci.yml/badge.svg?branch=main"/></a>
     <a href="https://www.npmjs.org/package/afrim-js"><img alt="NPM version" src="https://img.shields.io/npm/v/afrim-js.svg?style=flat-square"/></a>
   </p>
 
@@ -19,12 +19,13 @@
 ### 🛠️ Build with `wasm-pack build`
 
 ```
-wasm-pack build --release
+wasm-pack build
 ```
 
 ## 🔋 Features Included
 
 * `strsim` for text similarity.
+* `rhai` for scripting.
 
 ## License
 

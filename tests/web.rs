@@ -19,13 +19,21 @@ fn test_process() {
     let map = serde_wasm_bindgen::to_value(&data).unwrap();
 
     // Process
-    let mut preprocessor = Preprocessor::new(&map, 32);
-    preprocessor.process("a".to_owned(), "keydown".to_owned());
-    preprocessor.process("Backspace".to_owned(), "keydown".to_owned());
+    let mut preprocessor = Preprocessor::new(&map, 32).unwrap();
+    preprocessor
+        .process("a".to_owned(), "keydown".to_owned())
+        .unwrap();
+    preprocessor
+        .process("Backspace".to_owned(), "keydown".to_owned())
+        .unwrap();
     assert_eq!(preprocessor.get_input(), "".to_owned());
 
-    preprocessor.process("a".to_owned(), "keydown".to_owned());
-    preprocessor.process("1".to_owned(), "keydown".to_owned());
+    preprocessor
+        .process("a".to_owned(), "keydown".to_owned())
+        .unwrap();
+    preprocessor
+        .process("1".to_owned(), "keydown".to_owned())
+        .unwrap();
     assert_eq!(preprocessor.get_input(), "a1".to_owned());
 
     // Get commands
@@ -49,7 +57,7 @@ fn test_translate() {
     let dictionary = serde_wasm_bindgen::to_value(&dictionary).unwrap();
 
     // Translate
-    let translator = Translator::new(&dictionary, false);
+    let translator = Translator::new(&dictionary, false).unwrap();
     let translations: Vec<(String, String, Vec<String>, bool)> =
         serde_wasm_bindgen::from_value(translator.translate("hello")).unwrap();
 

@@ -1,10 +1,9 @@
 #![deny(missing_docs)]
-/// Binding of the afrim preprocessor for wasm.
+/// Binding of the afrim preprocessor.
 ///
 use afrim_preprocessor::Preprocessor as NativePreprocessor;
 use indexmap::IndexMap;
 use serde_wasm_bindgen::{self};
-
 use wasm_bindgen::prelude::*;
 
 /// Core structure of the preprocessor.
@@ -16,24 +15,26 @@ pub struct Preprocessor {
 #[wasm_bindgen]
 impl Preprocessor {
     /// Initiate the preprocessor.
-    pub fn new(data: &JsValue, buffer_size: usize) -> Self {
-        let data: IndexMap<String, String> = serde_wasm_bindgen::from_value(data.clone()).unwrap();
+    pub fn new(data: &JsValue, buffer_size: usize) -> Result<Preprocessor, String> {
+        let data: IndexMap<String, String> = serde_wasm_bindgen::from_value(data.clone())
+            .map_err(|err| format!("[preprocessor] Invalid data.\nCaused by:\n\t{err}."))?;
         let data = data
             .iter()
             .map(|(k, v)| vec![k.as_str(), v.as_str()])
             .collect();
         let map = utils::build_map(data);
 
-        Self {
+        Ok(Self {
             engine: NativePreprocessor::new(map, buffer_size),
-        }
+        })
     }
 
     /// Process the keyboard event.
-    pub fn process(&mut self, key: String, state: String) -> bool {
-        let (changed, _) = self.engine.process(utils::parse_event(key, state));
+    pub fn process(&mut self, key: String, state: String) -> Result<bool, String> {
+        let key_event = utils::parse_event(key, state)?;
+        let (changed, _) = self.engine.process(key_event);
 
-        changed
+        Ok(changed)
     }
 
     /// Commit the text.
@@ -66,16 +67,19 @@ pub mod utils {
     use std::str::FromStr;
 
     /// Convert an JsKeyboardEvent to KeyboardEvent.
-    pub fn parse_event(key: String, state: String) -> KeyboardEvent {
-        KeyboardEvent {
-            key: Key::from_str(&key).unwrap(),
+    pub fn parse_event(key: String, state: String) -> Result<KeyboardEvent, String> {
+        let event = KeyboardEvent {
+            key: Key::from_str(&key)
+                .map_err(|err| format!("[preprocessor] Unrecognized key.\nCaused by:\n\t{err}."))?,
             state: match state.as_str() {
                 "keydown" => KeyState::Down,
                 "keyup" => KeyState::Up,
                 _ => Default::default(),
             },
             ..Default::default()
-        }
+        };
+
+        Ok(event)
     }
 
     /// Convert a preprocessor command to speudo code.
@@ -101,7 +105,7 @@ mod test {
         use afrim_preprocessor::{Key, KeyState, KeyboardEvent};
 
         assert_eq!(
-            utils::parse_event("Alt".to_owned(), "keydown".to_owned()),
+            utils::parse_event("Alt".to_owned(), "keydown".to_owned()).unwrap(),
             KeyboardEvent {
                 key: Key::Alt,
                 state: KeyState::Down,
@@ -109,13 +113,14 @@ mod test {
             }
         );
         assert_eq!(
-            utils::parse_event(" ".to_owned(), "keyup".to_owned()),
+            utils::parse_event(" ".to_owned(), "keyup".to_owned()).unwrap(),
             KeyboardEvent {
                 key: Key::Character(" ".to_owned()),
                 state: KeyState::Up,
                 ..Default::default()
             }
         );
+        assert!(utils::parse_event("key".to_string(), "up".to_string()).is_err());
     }
 
     #[test]

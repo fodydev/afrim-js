@@ -1,6 +1,8 @@
 #![deny(missing_docs)]
-/// Binding of the afrim translator for wasm.
+/// Binding of the afrim translator.
 ///
+#[cfg(feature = "rhai")]
+use afrim_translator::Engine;
 use afrim_translator::Translator as NativeTranslator;
 use indexmap::IndexMap;
 use serde_wasm_bindgen::{self};
@@ -15,13 +17,37 @@ pub struct Translator {
 #[wasm_bindgen]
 impl Translator {
     /// Initiate the translator.
-    pub fn new(dictionary: &JsValue, auto_commit: bool) -> Self {
+    pub fn new(dictionary: &JsValue, auto_commit: bool) -> Result<Translator, String> {
         let dictionary: IndexMap<String, Vec<String>> =
-            serde_wasm_bindgen::from_value(dictionary.clone()).unwrap();
+            serde_wasm_bindgen::from_value(dictionary.clone())
+                .map_err(|err| format!("[translator] Invalid dictionary.\nCaused by:\n\t{err}."))?;
 
-        Self {
+        Ok(Self {
             engine: NativeTranslator::new(dictionary, auto_commit),
-        }
+        })
+    }
+
+    #[cfg(feature = "rhai")]
+    /// Register a translator from source code.
+    pub fn register(&mut self, name: String, source: String) -> Result<(), String> {
+        let mut engine = Engine::new_raw();
+        engine.set_max_expr_depths(25, 25);
+
+        let ast = engine.compile(source).map_err(|err| {
+            format!(
+                "[translator] Failed to register the translator `{name}`.\nCaused by:\n\t{err}."
+            )
+        })?;
+
+        self.engine.register(name, ast);
+
+        Ok(())
+    }
+
+    #[cfg(feature = "rhai")]
+    /// Unregister a translator
+    pub fn unregister(&mut self, name: &str) {
+        self.engine.unregister(name);
     }
 
     /// Generate predicates based on the input.
