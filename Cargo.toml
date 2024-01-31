@@ -6,7 +6,7 @@ edition = "2018"
 description = "Afrim engine for javascript."
 repository = "https://github.com/pythonbrad/afrim-js"
 license = "MIT"
-keywords = ["rust", "afrim", "wasm", "ime"]
+keywords = ["rust", "ime", "keyboard"]
 
 [lib]
 crate-type = ["cdylib", "rlib"]
