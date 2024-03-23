@@ -37,14 +37,17 @@ fn test_process() {
     assert_eq!(preprocessor.get_input(), "a1".to_owned());
 
     // Get commands
-    assert_eq!(preprocessor.pop_stack(), "!pause".to_string());
-    assert_eq!(preprocessor.pop_stack(), "".to_string());
-    assert_eq!(preprocessor.pop_stack(), "!resume".to_string());
-    assert_eq!(preprocessor.pop_stack(), "!pause".to_string());
-    assert_eq!(preprocessor.pop_stack(), "!backspace".to_string());
-    assert_eq!(preprocessor.pop_stack(), "!backspace".to_string());
-    assert_eq!(preprocessor.pop_stack(), "à".to_string());
-    assert_eq!(preprocessor.pop_stack(), "!resume".to_string());
+    assert_eq!(preprocessor.pop_queue(), "\"Pause\"".to_string());
+    assert_eq!(preprocessor.pop_queue(), "\"CleanDelete\"".to_string());
+    assert_eq!(preprocessor.pop_queue(), "\"Resume\"".to_string());
+    assert_eq!(preprocessor.pop_queue(), "\"Pause\"".to_string());
+    assert_eq!(preprocessor.pop_queue(), "\"Delete\"".to_string());
+    assert_eq!(preprocessor.pop_queue(), "\"Delete\"".to_string());
+    assert_eq!(
+        preprocessor.pop_queue(),
+        "{\"CommitText\":\"à\"}".to_string()
+    );
+    assert_eq!(preprocessor.pop_queue(), "\"Resume\"".to_string());
 }
 
 #[wasm_bindgen_test]
