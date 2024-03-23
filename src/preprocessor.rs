@@ -25,7 +25,7 @@ impl Preprocessor {
         let map = utils::build_map(data);
 
         Ok(Self {
-            engine: NativePreprocessor::new(map, buffer_size),
+            engine: NativePreprocessor::new(map.into(), buffer_size),
         })
     }
 
@@ -43,9 +43,9 @@ impl Preprocessor {
     }
 
     /// Return the next command to be executed.
-    pub fn pop_stack(&mut self) -> String {
+    pub fn pop_queue(&mut self) -> String {
         self.engine
-            .pop_stack()
+            .pop_queue()
             .map(utils::parse_command)
             .unwrap_or(".".to_owned())
     }
@@ -55,9 +55,9 @@ impl Preprocessor {
         self.engine.get_input()
     }
 
-    /// Clear the preprocessor commands from the stack.
-    pub fn clear_stack(&mut self) {
-        self.engine.clear_stack();
+    /// Clear the preprocessor commands from the queue.
+    pub fn clear_queue(&mut self) {
+        self.engine.clear_queue();
     }
 }
 
@@ -84,15 +84,7 @@ pub mod utils {
 
     /// Convert a preprocessor command to speudo code.
     pub fn parse_command(command: Command) -> String {
-        match command {
-            Command::CommitText(text) => text,
-            Command::Pause => "!pause".to_string(),
-            Command::Resume => "!resume".to_string(),
-            Command::KeyPress(Key::Backspace) | Command::KeyClick(Key::Backspace) => {
-                "!backspace".to_string()
-            }
-            _ => "".to_string(),
-        }
+        serde_json::to_string(&command).unwrap()
     }
 }
 
@@ -125,25 +117,23 @@ mod test {
 
     #[test]
     fn test_parse_command() {
-        use afrim_preprocessor::{Command, Key};
+        use afrim_preprocessor::Command;
 
         assert_eq!(
             utils::parse_command(Command::CommitText("text".to_string())),
-            "text".to_string()
-        );
-        assert_eq!(utils::parse_command(Command::Pause), "!pause".to_string());
-        assert_eq!(utils::parse_command(Command::Resume), "!resume".to_string());
-        assert_eq!(
-            utils::parse_command(Command::KeyPress(Key::Backspace)),
-            "!backspace".to_string()
+            "{\"CommitText\":\"text\"}".to_string()
         );
         assert_eq!(
-            utils::parse_command(Command::KeyRelease(Key::Backspace)),
-            "".to_string()
+            utils::parse_command(Command::Pause),
+            "\"Pause\"".to_string()
         );
         assert_eq!(
-            utils::parse_command(Command::KeyClick(Key::Backspace)),
-            "!backspace".to_string()
+            utils::parse_command(Command::Resume),
+            "\"Resume\"".to_string()
+        );
+        assert_eq!(
+            utils::parse_command(Command::Delete),
+            "\"Delete\"".to_string()
         );
     }
 }
