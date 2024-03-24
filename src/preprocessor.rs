@@ -31,8 +31,8 @@ impl Preprocessor {
     }
 
     /// Process the keyboard event.
-    pub fn process(&mut self, key: String, state: String) -> Result<bool, String> {
-        let key_event = utils::parse_event(key, state)?;
+    pub fn process(&mut self, key: &str, state: &str) -> Result<bool, String> {
+        let key_event = utils::deserialize_event(key, state)?;
         let (changed, _) = self.engine.process(key_event);
 
         Ok(changed)
@@ -48,7 +48,8 @@ impl Preprocessor {
     pub fn pop_queue(&mut self) -> String {
         self.engine
             .pop_queue()
-            .map(utils::parse_command)
+            .as_ref()
+            .map(utils::serialize_command)
             .unwrap_or("\"NOP\"".to_owned())
     }
 
@@ -71,14 +72,14 @@ pub mod utils {
     use std::str::FromStr;
 
     /// Convert an JsKeyboardEvent to KeyboardEvent.
-    pub fn parse_event(key: String, state: String) -> Result<KeyboardEvent, String> {
+    pub fn deserialize_event(key: &str, state: &str) -> Result<KeyboardEvent, String> {
         let event = KeyboardEvent {
-            key: Key::from_str(&key)
+            key: Key::from_str(key)
                 .map_err(|err| format!("[preprocessor] Unrecognized key.\nCaused by:\n\t{err}."))?,
-            state: match state.as_str() {
+            state: match state {
                 "keydown" => KeyState::Down,
                 "keyup" => KeyState::Up,
-                _ => Default::default(),
+                _ => return Err(format!("[preprocessor] Unrecognized state `{state}`.")),
             },
             ..Default::default()
         };
@@ -87,8 +88,8 @@ pub mod utils {
     }
 
     /// Convert a preprocessor command to speudo code.
-    pub fn parse_command(command: Command) -> String {
-        serde_json::to_string(&command).unwrap()
+    pub fn serialize_command(command: &Command) -> String {
+        serde_json::to_string(command).unwrap()
     }
 }
 
@@ -97,11 +98,11 @@ mod test {
     use crate::preprocessor::utils;
 
     #[test]
-    fn test_from_event() {
+    fn test_deserialize_event() {
         use afrim_preprocessor::{Key, KeyState, KeyboardEvent};
 
         assert_eq!(
-            utils::parse_event("Alt".to_owned(), "keydown".to_owned()).unwrap(),
+            utils::deserialize_event("Alt", "keydown").unwrap(),
             KeyboardEvent {
                 key: Key::Alt,
                 state: KeyState::Down,
@@ -109,34 +110,35 @@ mod test {
             }
         );
         assert_eq!(
-            utils::parse_event(" ".to_owned(), "keyup".to_owned()).unwrap(),
+            utils::deserialize_event(" ", "keyup").unwrap(),
             KeyboardEvent {
                 key: Key::Character(" ".to_owned()),
                 state: KeyState::Up,
                 ..Default::default()
             }
         );
-        assert!(utils::parse_event("key".to_string(), "up".to_string()).is_err());
+        assert!(utils::deserialize_event("key", "keyup").is_err());
+        assert!(utils::deserialize_event("a", "up").is_err());
     }
 
     #[test]
-    fn test_parse_command() {
+    fn test_serialize_command() {
         use afrim_preprocessor::Command;
 
         assert_eq!(
-            utils::parse_command(Command::CommitText("text".to_string())),
+            utils::serialize_command(&Command::CommitText("text".to_string())),
             "{\"CommitText\":\"text\"}".to_string()
         );
         assert_eq!(
-            utils::parse_command(Command::Pause),
+            utils::serialize_command(&Command::Pause),
             "\"Pause\"".to_string()
         );
         assert_eq!(
-            utils::parse_command(Command::Resume),
+            utils::serialize_command(&Command::Resume),
             "\"Resume\"".to_string()
         );
         assert_eq!(
-            utils::parse_command(Command::Delete),
+            utils::serialize_command(&Command::Delete),
             "\"Delete\"".to_string()
         );
     }

@@ -20,20 +20,12 @@ fn test_process() {
 
     // Process
     let mut preprocessor = Preprocessor::new(&map, 32).unwrap();
-    preprocessor
-        .process("a".to_owned(), "keydown".to_owned())
-        .unwrap();
-    preprocessor
-        .process("Backspace".to_owned(), "keydown".to_owned())
-        .unwrap();
+    preprocessor.process("a", "keydown").unwrap();
+    preprocessor.process("Backspace", "keydown").unwrap();
     assert_eq!(preprocessor.get_input(), "".to_owned());
 
-    preprocessor
-        .process("a".to_owned(), "keydown".to_owned())
-        .unwrap();
-    preprocessor
-        .process("1".to_owned(), "keydown".to_owned())
-        .unwrap();
+    preprocessor.process("a", "keydown").unwrap();
+    preprocessor.process("1", "keydown").unwrap();
     assert_eq!(preprocessor.get_input(), "a1".to_owned());
 
     // Get commands
