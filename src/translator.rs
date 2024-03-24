@@ -17,6 +17,7 @@ pub struct Translator {
 #[wasm_bindgen]
 impl Translator {
     /// Initiate the translator.
+    #[wasm_bindgen(constructor)]
     pub fn new(dictionary: &JsValue, auto_commit: bool) -> Result<Translator, String> {
         let dictionary: IndexMap<String, Vec<String>> =
             serde_wasm_bindgen::from_value(dictionary.clone())
