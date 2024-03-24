@@ -22,12 +22,79 @@
 wasm-pack build
 ```
 
-## 🔋 Features Included
+**Note**: Always use `wasm-pack build --debug` in debug mode.
+
+### 🔋 Features Included
 
 * `strsim` for text similarity.
 * `rhai` for scripting.
 
-## License
+### Installation
+
+```
+npm install afrim-js
+```
+
+### Usage
+
+```javascript
+import { Preprocessor, Translator } from "afrim-js";
+import { convertTomlToJson } from "afrim-js";
+
+(async function () {
+  // We execute preprocessor commands in idle.
+  var processCommand = () => {
+    var cmd = JSON.parse(preprocessor.popQueue());
+    // ...
+    requestAnimationFrame(processCommand);
+  };
+  // ...
+
+  // We config the afrim ime.
+  var preprocessor = new Preprocessor(data, 64);
+  var translator = new Translator(dictionary, false);
+  Object.entries(scripts).forEach((e) =>
+    translator.register(e[0], e[1]),
+  );
+  // ...
+
+  // We listen keyboard events.
+  textFieldElement.addEventListener(
+    "keyup",
+    (event) => {
+      // ...
+      
+      // Commit the predicate.
+      if (event.code == "Space") {
+        var predicate = global.memory.predicates[global.memory.predicateId];
+
+        if (predicate) preprocessor.commit(predicate[3]);
+        clearPredicate();
+      }
+
+      var changed = preprocessor.process(event.key, "keydown");
+      var input = preprocessor.getInput();
+
+      // We update the predicates
+      if (!changed) return;
+
+      tooltipInputElement.innerText = "📝 " + input;
+
+      var predicates = translator.translate(input);
+      loadPredicates(predicates);
+      updatePredicate();
+      // ...
+    },
+    false,
+  );
+  // ...
+
+  // We start the processor.
+  requestAnimationFrame(processCommand);
+})();
+```
+
+### License
 
 Licensed under MIT license ([LICENSE](LICENSE) or http://opensource.org/licenses/MIT).
 
