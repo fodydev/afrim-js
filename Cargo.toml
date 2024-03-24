@@ -1,6 +1,6 @@
 [package]
 name = "afrim-js"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Brady Fomegne <fomegnemeudje@outlook.com>"]
 edition = "2018"
 description = "Afrim engine for javascript."
