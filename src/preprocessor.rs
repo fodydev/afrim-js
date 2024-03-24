@@ -14,7 +14,14 @@ pub struct Preprocessor {
 
 #[wasm_bindgen]
 impl Preprocessor {
-    /// Initiate the preprocessor.
+    /// Initializes the preprocessor.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let data = { a1: "à", ae: "æ" };
+    /// let preprocessor = new Preprocessor(data, 64);
+    /// ```
     #[wasm_bindgen(constructor)]
     pub fn new(data: &JsValue, buffer_size: usize) -> Result<Preprocessor, String> {
         let data: IndexMap<String, String> = serde_wasm_bindgen::from_value(data.clone())
@@ -30,7 +37,16 @@ impl Preprocessor {
         })
     }
 
-    /// Process the keyboard event.
+    /// Process an keyboard event.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let data = { a1: "à", ae: "æ" };
+    /// let preprocessor = new Preprocessor(data, 64);
+    /// preprocessor.process("a", "keydown");
+    /// preprocessor.process("1", "keydown");
+    /// ```
     pub fn process(&mut self, key: &str, state: &str) -> Result<bool, String> {
         let key_event = utils::deserialize_event(key, state)?;
         let (changed, _) = self.engine.process(key_event);
@@ -38,12 +54,33 @@ impl Preprocessor {
         Ok(changed)
     }
 
-    /// Commit the text.
+    /// Commit a text.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let preprocessor = new Preprocessor(data, 64);
+    /// preprocessor.commit("ŋna");
+    /// ```
     pub fn commit(&mut self, text: String) {
         self.engine.commit(text);
     }
 
     /// Return the next command to be executed.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let data = { a1: "à", ae: "æ" };
+    /// let preprocessor = new Preprocessor(data, 64);
+    /// preprocessor.process("a", "keydown");
+    /// preprocessor.process("1", "keydown");
+    ///
+    /// preprocessor.popQueue() == "Pause";
+    /// preprocessor.popQueue() == { CommitText: "à" };
+    /// preprocessor.popQueue() == "Resume";
+    /// preprocessor.popQueue() == "NOP";
+    /// ```
     #[wasm_bindgen(js_name = popQueue)]
     pub fn pop_queue(&mut self) -> String {
         self.engine
@@ -54,12 +91,34 @@ impl Preprocessor {
     }
 
     /// Return the input from the memory.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let preprocessor = new Preprocessor(data, 64);
+    /// preprocessor.process("a", "keydown");
+    /// preprocessor.process("1", "keydown");
+    ///
+    /// preprocessor.getInput() == "a1";
+    /// ```
     #[wasm_bindgen(js_name = getInput)]
     pub fn get_input(&self) -> String {
         self.engine.get_input()
     }
 
     /// Clear the preprocessor commands from the queue.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// let data = { a1: "à", ae: "æ" };
+    /// let preprocessor = new Preprocessor(data, 64);
+    /// preprocessor.process("a", "keydown");
+    /// preprocessor.process("1", "keydown");
+    ///
+    /// preprocessor.clearQueue();
+    /// preprocessor.popQueue() == "NOP";
+    /// ```
     #[wasm_bindgen(js_name = clearQueue)]
     pub fn clear_queue(&mut self) {
         self.engine.clear_queue();
