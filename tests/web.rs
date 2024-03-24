@@ -94,3 +94,33 @@ fn test_translate() {
         ]
     );
 }
+
+#[cfg(feature = "rhai")]
+#[wasm_bindgen_test]
+fn test_transaltor() {
+    use afrim_js::Translator;
+
+    // Script
+    let count_script = r#"fn translate(input) { [input, "", input.len().to_string(), false] }"#;
+
+    // Translate
+    let dictionary = serde_wasm_bindgen::to_value(&HashMap::<String, String>::new()).unwrap();
+    let mut translator = Translator::new(&dictionary, false).unwrap();
+    translator
+        .register("count".to_owned(), count_script.to_owned())
+        .unwrap();
+    let translations: Vec<(String, String, Vec<String>, bool)> =
+        serde_wasm_bindgen::from_value(translator.translate("hello")).unwrap();
+
+    assert_eq!(
+        translations,
+        vec![(
+            "hello".to_owned(),
+            "".to_owned(),
+            vec!["5".to_owned()],
+            false
+        ),]
+    );
+
+    translator.unregister("count");
+}
