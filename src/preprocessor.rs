@@ -49,7 +49,7 @@ impl Preprocessor {
         self.engine
             .pop_queue()
             .map(utils::parse_command)
-            .unwrap_or(".".to_owned())
+            .unwrap_or("\"NOP\"".to_owned())
     }
 
     /// Return the input from the memory.
