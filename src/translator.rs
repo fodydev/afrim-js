@@ -30,9 +30,7 @@ impl Translator {
     #[cfg(feature = "rhai")]
     /// Register a translator from source code.
     pub fn register(&mut self, name: String, source: String) -> Result<(), String> {
-        let mut engine = Engine::new_raw();
-        engine.set_max_expr_depths(25, 25);
-
+        let engine = Engine::new_raw();
         let ast = engine.compile(source).map_err(|err| {
             format!(
                 "[translator] Failed to register the translator `{name}`.\nCaused by:\n\t{err}."

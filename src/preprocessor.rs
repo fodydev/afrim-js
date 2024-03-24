@@ -38,7 +38,7 @@ impl Preprocessor {
     }
 
     /// Commit the text.
-    pub fn commit(&mut self, text: &str) {
+    pub fn commit(&mut self, text: String) {
         self.engine.commit(text);
     }
 
