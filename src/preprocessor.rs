@@ -15,6 +15,7 @@ pub struct Preprocessor {
 #[wasm_bindgen]
 impl Preprocessor {
     /// Initiate the preprocessor.
+    #[wasm_bindgen(constructor)]
     pub fn new(data: &JsValue, buffer_size: usize) -> Result<Preprocessor, String> {
         let data: IndexMap<String, String> = serde_wasm_bindgen::from_value(data.clone())
             .map_err(|err| format!("[preprocessor] Invalid data.\nCaused by:\n\t{err}."))?;
@@ -43,6 +44,7 @@ impl Preprocessor {
     }
 
     /// Return the next command to be executed.
+    #[wasm_bindgen(js_name = popQueue)]
     pub fn pop_queue(&mut self) -> String {
         self.engine
             .pop_queue()
@@ -51,11 +53,13 @@ impl Preprocessor {
     }
 
     /// Return the input from the memory.
+    #[wasm_bindgen(js_name = getInput)]
     pub fn get_input(&self) -> String {
         self.engine.get_input()
     }
 
     /// Clear the preprocessor commands from the queue.
+    #[wasm_bindgen(js_name = clearQueue)]
     pub fn clear_queue(&mut self) {
         self.engine.clear_queue();
     }
