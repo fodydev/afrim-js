@@ -5,6 +5,7 @@
 extern crate wasm_bindgen_test;
 use serde_wasm_bindgen::{self};
 use std::collections::HashMap;
+use wasm_bindgen::JsValue;
 use wasm_bindgen_test::*;
 
 wasm_bindgen_test_configure!(run_in_browser);
@@ -19,7 +20,7 @@ fn test_process() {
     let map = serde_wasm_bindgen::to_value(&data).unwrap();
 
     // Process
-    let mut preprocessor = Preprocessor::new(&map, 32).unwrap();
+    let mut preprocessor = Preprocessor::new(map, 32).unwrap();
     preprocessor.process("a", "keydown").unwrap();
     preprocessor.process("Backspace", "keydown").unwrap();
     assert_eq!(preprocessor.get_input(), "".to_owned());
@@ -29,17 +30,15 @@ fn test_process() {
     assert_eq!(preprocessor.get_input(), "a1".to_owned());
 
     // Get commands
-    assert_eq!(preprocessor.pop_queue(), "\"Pause\"".to_string());
-    assert_eq!(preprocessor.pop_queue(), "\"CleanDelete\"".to_string());
-    assert_eq!(preprocessor.pop_queue(), "\"Resume\"".to_string());
-    assert_eq!(preprocessor.pop_queue(), "\"Pause\"".to_string());
-    assert_eq!(preprocessor.pop_queue(), "\"Delete\"".to_string());
-    assert_eq!(preprocessor.pop_queue(), "\"Delete\"".to_string());
-    assert_eq!(
-        preprocessor.pop_queue(),
-        "{\"CommitText\":\"à\"}".to_string()
-    );
-    assert_eq!(preprocessor.pop_queue(), "\"Resume\"".to_string());
+    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Pause"));
+    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("CleanDelete"));
+    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Resume"));
+    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Pause"));
+    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Delete"));
+    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Delete"));
+    assert!(preprocessor.pop_queue().is_object());
+    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Resume"));
+    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("NOP"));
 }
 
 #[wasm_bindgen_test]
@@ -52,7 +51,7 @@ fn test_translate() {
     let dictionary = serde_wasm_bindgen::to_value(&dictionary).unwrap();
 
     // Translate
-    let translator = Translator::new(&dictionary, false).unwrap();
+    let translator = Translator::new(dictionary, false).unwrap();
     let translations: Vec<(String, String, Vec<String>, bool)> =
         serde_wasm_bindgen::from_value(translator.translate("hello")).unwrap();
 
@@ -97,7 +96,7 @@ fn test_transaltor() {
 
     // Translate
     let dictionary = serde_wasm_bindgen::to_value(&HashMap::<String, String>::new()).unwrap();
-    let mut translator = Translator::new(&dictionary, false).unwrap();
+    let mut translator = Translator::new(dictionary, false).unwrap();
     translator
         .register("count".to_owned(), count_script.to_owned())
         .unwrap();
@@ -115,4 +114,12 @@ fn test_transaltor() {
     );
 
     translator.unregister("count");
+}
+
+#[wasm_bindgen_test]
+fn test_toml() {
+    use afrim_js::convert_toml_to_json;
+
+    let data = convert_toml_to_json("[data]\nhi = \"hello\"");
+    assert!(data.unwrap().is_object());
 }

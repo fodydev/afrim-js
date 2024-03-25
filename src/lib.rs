@@ -27,7 +27,6 @@ use wasm_bindgen::prelude::*;
 pub fn convert_toml_to_json(content: &str) -> Result<JsValue, String> {
     let data: toml::Value = toml::from_str(content)
         .map_err(|err| format!("Invalid toml data.\nCaused by:\n\t{err}."))?;
-    let json = serde_json::to_string(&data).unwrap();
 
-    Ok(JsValue::from_str(&json))
+    Ok(serde_wasm_bindgen::to_value(&data).unwrap())
 }
