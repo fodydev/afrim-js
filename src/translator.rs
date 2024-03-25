@@ -25,10 +25,9 @@ impl Translator {
     /// let translator = new Translator(data, false);
     /// ```
     #[wasm_bindgen(constructor)]
-    pub fn new(dictionary: &JsValue, auto_commit: bool) -> Result<Translator, String> {
-        let dictionary: IndexMap<String, Vec<String>> =
-            serde_wasm_bindgen::from_value(dictionary.clone())
-                .map_err(|err| format!("[translator] Invalid dictionary.\nCaused by:\n\t{err}."))?;
+    pub fn new(dictionary: JsValue, auto_commit: bool) -> Result<Translator, String> {
+        let dictionary: IndexMap<String, Vec<String>> = serde_wasm_bindgen::from_value(dictionary)
+            .map_err(|err| format!("[translator] Invalid dictionary.\nCaused by:\n\t{err}."))?;
 
         Ok(Self {
             engine: NativeTranslator::new(dictionary, auto_commit),

@@ -23,8 +23,8 @@ impl Preprocessor {
     /// let preprocessor = new Preprocessor(data, 64);
     /// ```
     #[wasm_bindgen(constructor)]
-    pub fn new(data: &JsValue, buffer_size: usize) -> Result<Preprocessor, String> {
-        let data: IndexMap<String, String> = serde_wasm_bindgen::from_value(data.clone())
+    pub fn new(data: JsValue, buffer_size: usize) -> Result<Preprocessor, String> {
+        let data: IndexMap<String, String> = serde_wasm_bindgen::from_value(data)
             .map_err(|err| format!("[preprocessor] Invalid data.\nCaused by:\n\t{err}."))?;
         let data = data
             .iter()
@@ -82,12 +82,13 @@ impl Preprocessor {
     /// preprocessor.popQueue() == "NOP";
     /// ```
     #[wasm_bindgen(js_name = popQueue)]
-    pub fn pop_queue(&mut self) -> String {
+    pub fn pop_queue(&mut self) -> JsValue {
         self.engine
             .pop_queue()
             .as_ref()
-            .map(utils::serialize_command)
-            .unwrap_or("\"NOP\"".to_owned())
+            .map(serde_wasm_bindgen::to_value)
+            .unwrap_or(Ok("NOP".into()))
+            .unwrap()
     }
 
     /// Return the input from the memory.
@@ -127,7 +128,7 @@ impl Preprocessor {
 
 pub mod utils {
     pub use afrim_preprocessor::utils::*;
-    use afrim_preprocessor::{Command, Key, KeyState, KeyboardEvent};
+    use afrim_preprocessor::{Key, KeyState, KeyboardEvent};
     use std::str::FromStr;
 
     /// Convert an JsKeyboardEvent to KeyboardEvent.
@@ -144,11 +145,6 @@ pub mod utils {
         };
 
         Ok(event)
-    }
-
-    /// Convert a preprocessor command to speudo code.
-    pub fn serialize_command(command: &Command) -> String {
-        serde_json::to_string(command).unwrap()
     }
 }
 
@@ -178,27 +174,5 @@ mod test {
         );
         assert!(utils::deserialize_event("key", "keyup").is_err());
         assert!(utils::deserialize_event("a", "up").is_err());
-    }
-
-    #[test]
-    fn test_serialize_command() {
-        use afrim_preprocessor::Command;
-
-        assert_eq!(
-            utils::serialize_command(&Command::CommitText("text".to_string())),
-            "{\"CommitText\":\"text\"}".to_string()
-        );
-        assert_eq!(
-            utils::serialize_command(&Command::Pause),
-            "\"Pause\"".to_string()
-        );
-        assert_eq!(
-            utils::serialize_command(&Command::Resume),
-            "\"Resume\"".to_string()
-        );
-        assert_eq!(
-            utils::serialize_command(&Command::Delete),
-            "\"Delete\"".to_string()
-        );
     }
 }
