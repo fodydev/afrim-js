@@ -49,7 +49,14 @@ impl Translator {
     ///     "}"
     /// );
     ///
-    /// translator.translate("hello") == [["hello", "", ["5"], false]];
+    /// translator.translate("hello") == [
+    ///     {
+    ///         code: "hello",
+    ///         remaining_code: "",
+    ///         texts: ["5"],
+    ///         can_commit: false
+    ///     }
+    /// ];
     /// ```
     #[cfg(feature = "rhai")]
     pub fn register(&mut self, name: String, source: String) -> Result<(), String> {
@@ -78,7 +85,14 @@ impl Translator {
     /// ```ignore
     /// let data = { hi: [ "hello" ] };
     /// let translator = new Translator(data, false);
-    /// translator.translate("hi") == ["hi", "", ["hello"], true];
+    /// translator.translate("hi") == [
+    ///     {
+    ///         code: "hi",
+    ///         remaining_code: "",
+    ///         texts: ["hello"],
+    ///         can_commit: true
+    ///     }
+    /// ];
     /// ```
     pub fn translate(&self, input: &str) -> JsValue {
         serde_wasm_bindgen::to_value(&self.engine.translate(input)).unwrap()

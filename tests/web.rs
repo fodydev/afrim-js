@@ -44,6 +44,7 @@ fn test_process() {
 #[wasm_bindgen_test]
 fn test_translate() {
     use afrim_js::Translator;
+    use afrim_translator::Predicate;
 
     let mut dictionary = HashMap::new();
     dictionary.insert("hello".to_owned(), vec!["hi".to_owned()]);
@@ -52,36 +53,36 @@ fn test_translate() {
 
     // Translate
     let translator = Translator::new(dictionary, false).unwrap();
-    let translations: Vec<(String, String, Vec<String>, bool)> =
+    let translations: Vec<Predicate> =
         serde_wasm_bindgen::from_value(translator.translate("hello")).unwrap();
 
     #[cfg(not(feature = "strsim"))]
     assert_eq!(
         translations,
-        vec![(
-            "hello".to_owned(),
-            "".to_owned(),
-            vec!["hi".to_owned()],
-            false
-        )]
+        vec![Predicate {
+            code: "hello".to_owned(),
+            remaining_code: "".to_owned(),
+            texts: vec!["hi".to_owned()],
+            can_commit: false
+        }]
     );
 
     #[cfg(feature = "strsim")]
     assert_eq!(
         translations,
         vec![
-            (
-                "hello".to_owned(),
-                "".to_owned(),
-                vec!["hi".to_owned()],
-                false
-            ),
-            (
-                "hallo".to_owned(),
-                "".to_owned(),
-                vec!["hola".to_owned()],
-                false
-            )
+            Predicate {
+                code: "hello".to_owned(),
+                remaining_code: "".to_owned(),
+                texts: vec!["hi".to_owned()],
+                can_commit: false
+            },
+            Predicate {
+                code: "hallo".to_owned(),
+                remaining_code: "".to_owned(),
+                texts: vec!["hola".to_owned()],
+                can_commit: false
+            }
         ]
     );
 }
@@ -90,6 +91,7 @@ fn test_translate() {
 #[wasm_bindgen_test]
 fn test_transaltor() {
     use afrim_js::Translator;
+    use afrim_translator::Predicate;
 
     // Script
     let count_script = r#"fn translate(input) { [input, "", input.len().to_string(), false] }"#;
@@ -100,17 +102,17 @@ fn test_transaltor() {
     translator
         .register("count".to_owned(), count_script.to_owned())
         .unwrap();
-    let translations: Vec<(String, String, Vec<String>, bool)> =
+    let translations: Vec<Predicate> =
         serde_wasm_bindgen::from_value(translator.translate("hello")).unwrap();
 
     assert_eq!(
         translations,
-        vec![(
-            "hello".to_owned(),
-            "".to_owned(),
-            vec!["5".to_owned()],
-            false
-        ),]
+        vec![Predicate {
+            code: "hello".to_owned(),
+            remaining_code: "".to_owned(),
+            texts: vec!["5".to_owned()],
+            can_commit: false
+        },]
     );
 
     translator.unregister("count");
