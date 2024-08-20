@@ -12,7 +12,7 @@ wasm_bindgen_test_configure!(run_in_browser);
 
 #[wasm_bindgen_test]
 fn test_process() {
-    use afrim_js::Preprocessor;
+    use afrim::Preprocessor;
 
     let mut data = HashMap::new();
     data.insert("a1".to_owned(), "à".to_owned());
@@ -43,7 +43,7 @@ fn test_process() {
 
 #[wasm_bindgen_test]
 fn test_translate() {
-    use afrim_js::Translator;
+    use afrim::Translator;
     use afrim_translator::Predicate;
 
     let mut dictionary = HashMap::new();
@@ -90,7 +90,7 @@ fn test_translate() {
 #[cfg(feature = "rhai")]
 #[wasm_bindgen_test]
 fn test_transaltor() {
-    use afrim_js::Translator;
+    use afrim::Translator;
     use afrim_translator::Predicate;
 
     // Script
@@ -120,7 +120,7 @@ fn test_transaltor() {
 
 #[wasm_bindgen_test]
 fn test_toml() {
-    use afrim_js::convert_toml_to_json;
+    use afrim::convert_toml_to_json;
 
     let data = convert_toml_to_json("[data]\nhi = \"hello\"");
     assert!(data.unwrap().is_object());
