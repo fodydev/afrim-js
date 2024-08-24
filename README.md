@@ -29,6 +29,13 @@ wasm-pack build
 * `strsim` for text similarity.
 * `rhai` for scripting.
 
+### Lite Version
+We also offer a lite version of this library for those who need a more lightweight solution.
+
+You can find it here [npm/afrim-lite](https://www.npmjs.com/package/afrim-lite).
+
+**Note:** This version implies the dropped rhai feature.
+
 ### Installation
 
 ```
