@@ -134,8 +134,9 @@ pub mod utils {
     /// Convert an JsKeyboardEvent to KeyboardEvent.
     pub fn deserialize_event(key: &str, state: &str) -> Result<KeyboardEvent, String> {
         let event = KeyboardEvent {
-            key: Key::from_str(key)
-                .map_err(|err| format!("[preprocessor] Unrecognized key.\nCaused by:\n\t{err:?}."))?,
+            key: Key::from_str(key).map_err(|err| {
+                format!("[preprocessor] Unrecognized key.\nCaused by:\n\t{err:?}.")
+            })?,
             state: match state {
                 "keydown" => KeyState::Down,
                 "keyup" => KeyState::Up,
