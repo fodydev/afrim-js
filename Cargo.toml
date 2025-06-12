@@ -1,6 +1,6 @@
 [package]
 name = "afrim"
-version = "0.4.0"
+version = "0.4.1"
 authors = ["Brady Fomegne <fomegnemeudje@outlook.com>"]
 edition = "2018"
 description = "Afrim engine for javascript."
@@ -17,15 +17,15 @@ strsim = ["afrim-translator/strsim"]
 rhai = ["afrim-translator/rhai-wasm"]
 
 [dependencies]
-wasm-bindgen = "0.2.92"
-afrim-preprocessor = { version = "0.6.1", default-features = false, features = ["serde"], git = "https://github.com/pythonbrad/afrim", rev = "5f40469" }
+wasm-bindgen = "0.2.100"
+afrim-preprocessor = { version = "0.6.2", default-features = false, features = ["serde"], git = "https://github.com/pythonbrad/afrim", rev = "448c9a4" }
 serde-wasm-bindgen = "0.6.5"
-afrim-translator = { version = "0.2.1", default-features = false, features = ["serde"], git = "https://github.com/pythonbrad/afrim", rev = "5f40469" }
-indexmap = { version = "2.2.6", features = ["serde"] }
-toml = "0.8.12"
+afrim-translator = { version = "0.2.2", default-features = false, features = ["serde"], git = "https://github.com/pythonbrad/afrim", rev = "448c9a4" }
+indexmap = { version = "2.9.0", features = ["serde"] }
+toml = "0.8.23"
 
 [dev-dependencies]
-wasm-bindgen-test = "0.3.42"
+wasm-bindgen-test = "0.3.50"
 
 [profile.release]
 lto = "fat"         # turn on Link-Time Optimizations

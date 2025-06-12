@@ -135,7 +135,7 @@ pub mod utils {
     pub fn deserialize_event(key: &str, state: &str) -> Result<KeyboardEvent, String> {
         let event = KeyboardEvent {
             key: Key::from_str(key)
-                .map_err(|err| format!("[preprocessor] Unrecognized key.\nCaused by:\n\t{err}."))?,
+                .map_err(|err| format!("[preprocessor] Unrecognized key.\nCaused by:\n\t{err:?}."))?,
             state: match state {
                 "keydown" => KeyState::Down,
                 "keyup" => KeyState::Up,
@@ -154,12 +154,12 @@ mod test {
 
     #[test]
     fn test_deserialize_event() {
-        use afrim_preprocessor::{Key, KeyState, KeyboardEvent};
+        use afrim_preprocessor::{Key, KeyState, KeyboardEvent, NamedKey};
 
         assert_eq!(
             utils::deserialize_event("Alt", "keydown").unwrap(),
             KeyboardEvent {
-                key: Key::Alt,
+                key: Key::Named(NamedKey::Alt),
                 state: KeyState::Down,
                 ..Default::default()
             }
