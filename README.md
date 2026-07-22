@@ -59,7 +59,7 @@ import { convertTomlToJson } from "afrim";
 
   // We config the afrim ime.
   var preprocessor = new Preprocessor(data, 64);
-  var translator = new Translator(dictionary, false);
+  var translator = new Translator(dictionary, false, 0.7);
   Object.entries(scripts).forEach((e) =>
     translator.register(e[0], e[1]),
   );
