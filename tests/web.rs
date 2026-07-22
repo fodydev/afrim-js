@@ -52,7 +52,7 @@ fn test_translate() {
     let dictionary = serde_wasm_bindgen::to_value(&dictionary).unwrap();
 
     // Translate
-    let translator = Translator::new(dictionary, false).unwrap();
+    let translator = Translator::new(dictionary, false, 0.7).unwrap();
     let translations: Vec<Predicate> =
         serde_wasm_bindgen::from_value(translator.translate("hello")).unwrap();
 
@@ -98,7 +98,7 @@ fn test_transaltor() {
 
     // Translate
     let dictionary = serde_wasm_bindgen::to_value(&HashMap::<String, String>::new()).unwrap();
-    let mut translator = Translator::new(dictionary, false).unwrap();
+    let mut translator = Translator::new(dictionary, false, 0.7).unwrap();
     translator
         .register("count".to_owned(), count_script.to_owned())
         .unwrap();
