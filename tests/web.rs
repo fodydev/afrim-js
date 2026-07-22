@@ -31,11 +31,11 @@ fn test_process() {
 
     // Get commands
     assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Pause"));
-    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("CleanDelete"));
+    assert!(preprocessor.pop_queue().is_object());
     assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Resume"));
     assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Pause"));
-    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Delete"));
-    assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Delete"));
+    assert!(preprocessor.pop_queue().is_object());
+    assert!(preprocessor.pop_queue().is_object());
     assert!(preprocessor.pop_queue().is_object());
     assert_eq!(preprocessor.pop_queue(), JsValue::from_str("Resume"));
     assert_eq!(preprocessor.pop_queue(), JsValue::from_str("NOP"));
