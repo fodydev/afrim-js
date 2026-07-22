@@ -22,15 +22,19 @@ impl Translator {
     ///
     /// ```ignore
     /// let data = { hi: [ "hello", "hola", "hey" ] };
-    /// let translator = new Translator(data, false);
+    /// let translator = new Translator(data, false, 0.7);
     /// ```
     #[wasm_bindgen(constructor)]
-    pub fn new(dictionary: JsValue, auto_commit: bool) -> Result<Translator, String> {
+    pub fn new(
+        dictionary: JsValue,
+        auto_commit: bool,
+        min_confidence: f64,
+    ) -> Result<Translator, String> {
         let dictionary: IndexMap<String, Vec<String>> = serde_wasm_bindgen::from_value(dictionary)
             .map_err(|err| format!("[translator] Invalid dictionary.\nCaused by:\n\t{err}."))?;
 
         Ok(Self {
-            engine: NativeTranslator::new(dictionary, auto_commit),
+            engine: NativeTranslator::new(dictionary, auto_commit, min_confidence),
         })
     }
 
@@ -41,7 +45,7 @@ impl Translator {
     /// # Example
     ///
     /// ```ignore
-    /// let translator = new Translator({}, false);
+    /// let translator = new Translator({}, false, 0.7);
     /// translator.register(
     ///     count_script,
     ///     "fn translate(input) {" +
@@ -84,7 +88,7 @@ impl Translator {
     ///
     /// ```ignore
     /// let data = { hi: [ "hello" ] };
-    /// let translator = new Translator(data, false);
+    /// let translator = new Translator(data, false, 0.7);
     /// translator.translate("hi") == [
     ///     {
     ///         code: "hi",
