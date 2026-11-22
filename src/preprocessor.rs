@@ -1,9 +1,10 @@
 #![deny(missing_docs)]
 /// Binding of the afrim preprocessor.
 ///
-use afrim_preprocessor::Preprocessor as NativePreprocessor;
-use indexmap::IndexMap;
+use afrim_preprocessor::{Node, Preprocessor as NativePreprocessor};
 use serde_wasm_bindgen::{self};
+use std::collections::HashMap;
+use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 
 /// Core structure of the preprocessor.
@@ -24,16 +25,18 @@ impl Preprocessor {
     /// ```
     #[wasm_bindgen(constructor)]
     pub fn new(data: JsValue, buffer_size: usize) -> Result<Preprocessor, String> {
-        let data: IndexMap<String, String> = serde_wasm_bindgen::from_value(data)
+        let data: HashMap<String, String> = serde_wasm_bindgen::from_value(data)
             .map_err(|err| format!("[preprocessor] Invalid data.\nCaused by:\n\t{err}."))?;
-        let data = data
-            .iter()
-            .map(|(k, v)| vec![k.as_str(), v.as_str()])
-            .collect();
-        let map = utils::build_map(data);
+
+        // Build the trie directly, moving each value in, rather than going through
+        // `utils::build_map`, which needs an intermediate `Vec<Vec<&str>>` and clones every value.
+        let map = Node::default();
+        for (key, value) in data {
+            map.insert(key.chars().collect(), value);
+        }
 
         Ok(Self {
-            engine: NativePreprocessor::new(map.into(), buffer_size),
+            engine: NativePreprocessor::new(Rc::new(map), buffer_size),
         })
     }
 
@@ -83,12 +86,10 @@ impl Preprocessor {
     /// ```
     #[wasm_bindgen(js_name = popQueue)]
     pub fn pop_queue(&mut self) -> JsValue {
-        self.engine
-            .pop_queue()
-            .as_ref()
-            .map(serde_wasm_bindgen::to_value)
-            .unwrap_or(Ok("NOP".into()))
-            .unwrap()
+        match self.engine.pop_queue() {
+            Some(command) => serde_wasm_bindgen::to_value(&command).unwrap_throw(),
+            None => JsValue::from_str("NOP"),
+        }
     }
 
     /// Return the input from the memory.
@@ -127,7 +128,6 @@ impl Preprocessor {
 }
 
 pub mod utils {
-    pub use afrim_preprocessor::utils::*;
     use afrim_preprocessor::{Key, KeyState, KeyboardEvent};
     use std::str::FromStr;
 
