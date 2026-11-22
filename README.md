@@ -42,6 +42,24 @@ You can find it here [npm/afrim-lite](https://www.npmjs.com/package/afrim-lite).
 npm install afrim
 ```
 
+### Serving the wasm file
+
+The `afrim_bg.wasm` file is large (~900 KB), but it compresses very well: gzip brings it down
+to ~340 KB, about 62% smaller. Serve it compressed to cut download time and speed up page
+loads, especially on slow mobile connections.
+
+Most CDNs (jsDelivr, unpkg, Cloudflare) and static hosts (GitHub Pages, Netlify, Vercel)
+already do this for you. If you host the file yourself, make sure compression is enabled for
+the `application/wasm` MIME type. For example:
+
+* **nginx**: `gzip on;` and `gzip_types application/wasm;`
+* **Apache**: `AddOutputFilterByType DEFLATE application/wasm`
+
+Brotli usually compresses even better than gzip, if your server supports it.
+
+To check, open your browser's devtools, select the `.wasm` request in the Network tab, and
+look for a `Content-Encoding: gzip` (or `br`) response header.
+
 ### Usage
 
 ```javascript

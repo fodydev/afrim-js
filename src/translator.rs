@@ -99,6 +99,6 @@ impl Translator {
     /// ];
     /// ```
     pub fn translate(&self, input: &str) -> JsValue {
-        serde_wasm_bindgen::to_value(&self.engine.translate(input)).unwrap()
+        serde_wasm_bindgen::to_value(&self.engine.translate(input)).unwrap_throw()
     }
 }
