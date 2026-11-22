@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improved
 
+- (lib) Preserve order when loading the dataset. [(#41)](https://github.com/fodydev/afrim-js/pull/41)
 - (lib) Updated dependencies. [(#39)](https://github.com/fodydev/afrim-js/pull/39)
 - (lib) Improved the implementation of afrim. [(#38)](https://github.com/fodydev/afrim-js/pull/38)
 
